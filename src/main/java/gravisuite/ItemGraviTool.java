@@ -128,39 +128,33 @@ public class ItemGraviTool extends ItemTool implements IElectricItem, IToolWrenc
 		return true;
 	}
 
-	@Override
-	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
-	{
-		if (GraviSuite.isSimulating() && Keyboard.isModeKeyDown(player))
-		{
-			int mode = readToolMode(stack);
-			mode++;
+   public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
+      if(GraviSuite.isSimulating() && Keyboard.isModeKeyDown(player)) {
+         Integer toolMode = readToolMode(stack);
+         toolMode = Integer.valueOf(toolMode.intValue() + 1);
+         if(toolMode.intValue() > 4) {
+            toolMode = Integer.valueOf(1);
+         }
 
-			// TODO gamerforEA code start
-			if (mode == 3 && EventConfig.disableGraviToolWrenchMode)
-				mode++;
-			// TODO gamerforEA code end
+         saveToolMode(stack, toolMode);
+         setToolName(stack);
+         if(toolMode.intValue() == 1) {
+            ServerProxy.sendPlayerMessage(player, "§2" + Helpers.formatMessage("graviTool.snap.Hoe") + " " + "§a" + Helpers.formatMessage("message.text.activated"));
+         } else if(toolMode.intValue() == 2) {
+            ServerProxy.sendPlayerMessage(player, "§6" + Helpers.formatMessage("graviTool.snap.TreeTap") + " " + "§a" + Helpers.formatMessage("message.text.activated"));
+         } else if(toolMode.intValue() == 3) {
+            ServerProxy.sendPlayerMessage(player, "§b" + Helpers.formatMessage("graviTool.snap.Wrench") + " " + "§a" + Helpers.formatMessage("message.text.activated"));
+         } else if(toolMode.intValue() == 4) {
+            ServerProxy.sendPlayerMessage(player, "§d" + Helpers.formatMessage("graviTool.snap.Screwdriver") + " " + "§a" + Helpers.formatMessage("message.text.activated"));
+         }
+      }
 
-			if (mode > 4)
-				mode = 1;
+      if(!GraviSuite.isSimulating() && KeyboardClient.isModeKeyPress(player)) {
+         AudioManagerClient.playSound(player, PositionSpec.Hand, "toolChange");
+      }
 
-			saveToolMode(stack, mode);
-			setToolName(stack);
-			if (mode == 1)
-				ServerProxy.sendPlayerMessage(player, "§2" + Helpers.formatMessage("graviTool.snap.Hoe") + " " + "§a" + Helpers.formatMessage("message.text.activated"));
-			else if (mode == 2)
-				ServerProxy.sendPlayerMessage(player, "§6" + Helpers.formatMessage("graviTool.snap.TreeTap") + " " + "§a" + Helpers.formatMessage("message.text.activated"));
-			else if (mode == 3)
-				ServerProxy.sendPlayerMessage(player, "§b" + Helpers.formatMessage("graviTool.snap.Wrench") + " " + "§a" + Helpers.formatMessage("message.text.activated"));
-			else if (mode == 4)
-				ServerProxy.sendPlayerMessage(player, "§d" + Helpers.formatMessage("graviTool.snap.Screwdriver") + " " + "§a" + Helpers.formatMessage("message.text.activated"));
-		}
-
-		if (!GraviSuite.isSimulating() && KeyboardClient.isModeKeyPress(player))
-			AudioManagerClient.playSound(player, PositionSpec.Hand, "toolChange");
-
-		return stack;
-	}
+      return stack;
+   }
 
 	@Override
 	public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float a, float b, float c)
@@ -681,21 +675,15 @@ public class ItemGraviTool extends ItemTool implements IElectricItem, IToolWrenc
 		return EnumRarity.uncommon;
 	}
 
-	public static Integer readToolMode(ItemStack itemstack)
-	{
-		NBTTagCompound nbttagcompound = GraviSuite.getOrCreateNbtData(itemstack);
-		int mode = nbttagcompound.getInteger("toolMode");
+	   public static Integer readToolMode(ItemStack itemstack) {
+      NBTTagCompound nbttagcompound = GraviSuite.getOrCreateNbtData(itemstack);
+      Integer mode = Integer.valueOf(nbttagcompound.getInteger("toolMode"));
+      if(mode.intValue() <= 0 || mode.intValue() > 4) {
+         mode = Integer.valueOf(1);
+      }
 
-		// TODO gamerforEA code start
-		if (mode == 3 && EventConfig.disableGraviToolWrenchMode)
-			mode++;
-		// TODO gamerforEA code end
-
-		if (mode <= 0 || mode > 4)
-			mode = 1;
-
-		return mode;
-	}
+      return mode;
+   }
 
 	public static Integer readTextureIndex(ItemStack itemstack)
 	{
