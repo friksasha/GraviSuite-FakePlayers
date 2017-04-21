@@ -309,7 +309,6 @@ public class ItemAdvDDrill extends ItemTool implements IElectricItem
       return toolMode;
    }
 
-
 	public void saveToolMode(ItemStack itemstack, int toolMode)
 	{
 		NBTTagCompound nbt = GraviSuite.getOrCreateNbtData(itemstack);
@@ -350,45 +349,38 @@ public class ItemAdvDDrill extends ItemTool implements IElectricItem
 		return super.onItemUse(stack, player, world, x, y, z, side, xOffset, yOffset, zOffset);
 	}
 
-	@Override
-	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player)
-	{
-		if (Keyboard.isModeKeyDown(player))
-		{
-			int toolMode = readToolMode(itemStack) + 1;
+   public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
+      if(Keyboard.isModeKeyDown(player)) {
+         Integer toolMode = readToolMode(itemStack);
+         toolMode = Integer.valueOf(toolMode.intValue() + 1);
+         if(toolMode.intValue() > 3) {
+            toolMode = Integer.valueOf(0);
+         }
 
-			// TODO gamerforEA code start
-			if (EventConfig.disableAdvDDrillBigHoleMode && toolMode == 3)
-				toolMode = 0;
-			// TODO gamerforEA code end
+         this.saveToolMode(itemStack, toolMode);
+         if(toolMode.intValue() == 0) {
+            ServerProxy.sendPlayerMessage(player, EnumChatFormatting.GREEN + Helpers.formatMessage("message.text.mode") + ": " + Helpers.formatMessage("message.advDDrill.mode.normal"));
+            super.efficiencyOnProperMaterial = this.normalPower;
+         }
 
-			if (toolMode > 3)
-				toolMode = 0;
+         if(toolMode.intValue() == 1) {
+            ServerProxy.sendPlayerMessage(player, EnumChatFormatting.GOLD + Helpers.formatMessage("message.text.mode") + ": " + Helpers.formatMessage("message.advDDrill.mode.lowPower"));
+            super.efficiencyOnProperMaterial = this.lowPower;
+         }
 
-			this.saveToolMode(itemStack, toolMode);
-			switch (toolMode)
-			{
-				case 0:
-					ServerProxy.sendPlayerMessage(player, EnumChatFormatting.GREEN + Helpers.formatMessage("message.text.mode") + ": " + Helpers.formatMessage("message.advDDrill.mode.normal"));
-					super.efficiencyOnProperMaterial = this.normalPower;
-					break;
-				case 1:
-					ServerProxy.sendPlayerMessage(player, EnumChatFormatting.GOLD + Helpers.formatMessage("message.text.mode") + ": " + Helpers.formatMessage("message.advDDrill.mode.lowPower"));
-					super.efficiencyOnProperMaterial = this.lowPower;
-					break;
-				case 2:
-					ServerProxy.sendPlayerMessage(player, EnumChatFormatting.AQUA + Helpers.formatMessage("message.text.mode") + ": " + Helpers.formatMessage("message.advDDrill.mode.fine"));
-					super.efficiencyOnProperMaterial = this.ultraLowPower;
-					break;
-				case 3:
-					ServerProxy.sendPlayerMessage(player, EnumChatFormatting.LIGHT_PURPLE + Helpers.formatMessage("message.text.mode") + ": " + Helpers.formatMessage("message.advDDrill.mode.bigHoles"));
-					super.efficiencyOnProperMaterial = this.bigHolePower;
-					break;
-			}
-		}
+         if(toolMode.intValue() == 2) {
+            ServerProxy.sendPlayerMessage(player, EnumChatFormatting.AQUA + Helpers.formatMessage("message.text.mode") + ": " + Helpers.formatMessage("message.advDDrill.mode.fine"));
+            super.efficiencyOnProperMaterial = this.ultraLowPower;
+         }
 
-		return itemStack;
-	}
+         if(toolMode.intValue() == 3) {
+            super.efficiencyOnProperMaterial = this.bigHolePower;
+            ServerProxy.sendPlayerMessage(player, EnumChatFormatting.LIGHT_PURPLE + Helpers.formatMessage("message.text.mode") + ": " + Helpers.formatMessage("message.advDDrill.mode.bigHoles"));
+         }
+      }
+
+      return itemStack;
+   }
 
 	public static MovingObjectPosition raytraceFromEntity(World world, Entity player, boolean par3, double range)
 	{
