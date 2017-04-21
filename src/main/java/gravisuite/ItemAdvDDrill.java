@@ -298,21 +298,17 @@ public class ItemAdvDDrill extends ItemTool implements IElectricItem
 		}
 	}
 
-	public static int readToolMode(ItemStack itemstack)
-	{
-		NBTTagCompound nbt = GraviSuite.getOrCreateNbtData(itemstack);
-		int toolMode = nbt.getInteger("toolMode");
+   public static Integer readToolMode(ItemStack itemstack) 
+   {
+      NBTTagCompound nbttagcompound = GraviSuite.getOrCreateNbtData(itemstack);
+      Integer toolMode = Integer.valueOf(nbttagcompound.getInteger("toolMode"));
+      if(toolMode.intValue() < 0 || toolMode.intValue() > 3) {
+         toolMode = Integer.valueOf(0);
+      }
 
-		// TODO gamerforEA code start
-		if (EventConfig.disableAdvDDrillBigHoleMode && toolMode == 3)
-			toolMode = 0;
-		// TODO gamerforEA code end
+      return toolMode;
+   }
 
-		if (toolMode < 0 || toolMode > 3)
-			toolMode = 0;
-
-		return toolMode;
-	}
 
 	public void saveToolMode(ItemStack itemstack, int toolMode)
 	{
